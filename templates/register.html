@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Arpino Walks{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <h1 class="h2 mb-4">Create an account</h1>
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <fieldset class="mb-4">
+                <legend class="form-label">Registration type</legend>
+
+                <div class="form-check form-check-inline">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="role"
+                        id="role_participant"
+                        value="participant"
+                        {% if selected_role == 'participant' %}checked{% endif %}
+                    >
+                    <label class="form-check-label" for="role_participant">
+                        Participant
+                    </label>
+                </div>
+
+                <div class="form-check form-check-inline">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="role"
+                        id="role_guide"
+                        value="guide"
+                        {% if selected_role == 'guide' %}checked{% endif %}
+                    >
+                    <label class="form-check-label" for="role_guide">
+                        Guide
+                    </label>
+                </div>
+            </fieldset>
+
+            <div class="mb-3">
+                <label for="first_name" class="form-label">First name</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="first_name"
+                    name="first_name"
+                    required
+                    minlength="2"
+                    maxlength="50"
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last name</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="last_name"
+                    name="last_name"
+                    required
+                    minlength="2"
+                    maxlength="50"
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                    maxlength="255"
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    required
+                    minlength="8"
+                    maxlength="128"
+                >
+            </div>
+
+            <div class="mb-4">
+                <label for="confirm_password" class="form-label">Confirm password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="confirm_password"
+                    name="confirm_password"
+                    required
+                    minlength="8"
+                    maxlength="128"
+                >
+            </div>
+
+            <fieldset class="mb-4" id="guide_languages_block">
+                <legend class="form-label">Spoken languages</legend>
+
+                {% for language in allowed_languages %}
+                    <div class="form-check">
+                        <input
+                            class="form-check-input guide-language-checkbox"
+                            type="checkbox"
+                            name="languages"
+                            value="{{ language }}"
+                            id="language_{{ loop.index }}"
+                        >
+                        <label class="form-check-label" for="language_{{ loop.index }}">
+                            {{ language }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary">Create account</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
