@@ -13,7 +13,7 @@
             <div class="container">
                 <a class="navbar-brand" href="{{ url_for('index') }}">Arpino Walks</a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
@@ -37,10 +37,14 @@
                                     <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin</a>
                                 </li>
                             {% endif %}
+
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                             </li>
                         {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('tours') }}">Tours</a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ url_for('login') }}">Login</a>
                             </li>
@@ -61,7 +65,7 @@
                     {% for category, message in messages %}
                         <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                             {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
                 </div>

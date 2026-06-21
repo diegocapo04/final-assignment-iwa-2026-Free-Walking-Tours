@@ -1,6 +1,5 @@
 from db.database import get_connection
 
-
 def get_user_by_email(email):
     conn = get_connection()
     cur = conn.cursor()
@@ -13,7 +12,6 @@ def get_user_by_email(email):
     cur.close()
     conn.close()
     return user
-
 
 def get_user_by_id(user_id):
     conn = get_connection()
@@ -28,7 +26,6 @@ def get_user_by_id(user_id):
     conn.close()
     return user
 
-
 def email_exists(email):
     conn = get_connection()
     cur = conn.cursor()
@@ -41,7 +38,6 @@ def email_exists(email):
     cur.close()
     conn.close()
     return user is not None
-
 
 def create_participant(first_name, last_name, email, password_hash):
     conn = get_connection()
@@ -56,7 +52,6 @@ def create_participant(first_name, last_name, email, password_hash):
     conn.close()
     return user_id
 
-
 def create_guide(first_name, last_name, email, password_hash):
     conn = get_connection()
     cur = conn.cursor()
@@ -70,19 +65,6 @@ def create_guide(first_name, last_name, email, password_hash):
     conn.close()
     return user_id
 
-
-def add_guide_language(guide_id, language):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO guide_languages (guide_id, language)
-        VALUES (?, ?)
-    """, (guide_id, language))
-    conn.commit()
-    cur.close()
-    conn.close()
-
-
 def add_guide_languages(guide_id, languages):
     conn = get_connection()
     cur = conn.cursor()
@@ -94,7 +76,6 @@ def add_guide_languages(guide_id, languages):
     conn.commit()
     cur.close()
     conn.close()
-
 
 def get_guide_languages(guide_id):
     conn = get_connection()

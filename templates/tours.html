@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Tours - Arpino Walks{% endblock %}
+
+{% block content %}
+<section>
+    <h1 class="h2 mb-4">Available tours</h1>
+
+    {% if tours %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for tour in tours %}
+                <div class="col">
+                    <article class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title h5">{{ tour.title }}</h2>
+                            <p class="card-text text-muted small">
+                                {{ tour.description | truncate(120) }}
+                            </p>
+                        </div>
+
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Guide:</strong> {{ tour.guide_name }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Meeting point:</strong> {{ tour.meeting_point }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Duration:</strong> {{ tour.duration_minutes | int }} minutes
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Language:</strong> {{ tour.language }}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Max participants:</strong> {{ tour.max_participants }}
+                            </li>
+                        </ul>
+
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-primary btn-sm">
+                                View details
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted mb-3">No tours available yet.</p>
+            {% if current_user.is_authenticated and current_user.role == 'guide' %}
+                <a href="{{ url_for('new_tour') }}" class="btn btn-primary">Create your first tour</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

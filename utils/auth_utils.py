@@ -1,12 +1,10 @@
 from flask import flash, redirect, url_for
 from flask_login import current_user
 
-
 def redirect_if_authenticated():
     if current_user.is_authenticated:
         return redirect_by_role()
     return None
-
 
 def redirect_by_role():
     if current_user.role == "participant":
@@ -16,7 +14,6 @@ def redirect_by_role():
     if current_user.role == "admin":
         return redirect(url_for("admin_dashboard"))
     return redirect(url_for("index"))
-
 
 def require_role(role):
     if not current_user.is_authenticated:

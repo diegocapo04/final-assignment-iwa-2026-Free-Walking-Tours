@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}New Tour - Arpino Walks{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <h1 class="h2 mb-4">Create a new tour</h1>
+
+        <form method="POST" action="{{ url_for('new_tour') }}" enctype="multipart/form-data">
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">General information</legend>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="title"
+                        name="title"
+                        value="{{ form.get('title', '') }}"
+                        required
+                        minlength="3"
+                        maxlength="100"
+                    >
+                </div>
+
+                <div class="mb-3">
+                    <label for="meeting_point" class="form-label">Meeting point</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="meeting_point"
+                        name="meeting_point"
+                        value="{{ form.get('meeting_point', '') }}"
+                        required
+                        minlength="3"
+                        maxlength="200"
+                    >
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="duration_minutes" class="form-label">Duration (minutes)</label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="duration_minutes"
+                            name="duration_minutes"
+                            value="{{ form.get('duration_minutes', '') }}"
+                            step="1"
+                            min="1"
+                            max="1440"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="max_participants" class="form-label">Max participants</label>
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="max_participants"
+                            name="max_participants"
+                            value="{{ form.get('max_participants', '') }}"
+                            min="1"
+                            max="50"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="language" class="form-label">Language</label>
+                        <select class="form-select" id="language" name="language" required>
+                            <option value="" disabled {% if not form.get('language') %}selected{% endif %}>
+                                Select language
+                            </option>
+                            {% for lang in allowed_languages %}
+                                <option value="{{ lang }}" {% if form.get('language') == lang %}selected{% endif %}>
+                                    {{ lang }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea
+                        class="form-control"
+                        id="description"
+                        name="description"
+                        rows="4"
+                        required
+                        minlength="10"
+                        maxlength="2000"
+                    >{{ form.get('description', '') }}</textarea>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">Weekly schedule</legend>
+                <p class="text-muted small mb-3">Select the days and the corresponding start time.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Day</th>
+                                <th scope="col">Active</th>
+                                <th scope="col">Start time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in weekday_names %}
+                                {% set i = loop.index0 %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td>
+                                        <input
+                                            class="form-check-input schedule-checkbox"
+                                            type="checkbox"
+                                            name="weekday"
+                                            value="{{ i }}"
+                                            id="weekday_{{ i }}"
+                                            data-day="{{ i }}"
+                                            {% if (i | string) in form.getlist('weekday') %}checked{% endif %}
+                                        >
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="time"
+                                            class="form-control form-control-sm schedule-time schedule-time-input"
+                                            id="start_time_{{ i }}"
+                                            name="start_time_{{ i }}"
+                                            value="{{ form.get('start_time_' ~ i, '') }}"
+                                        >
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">Tour stops</legend>
+                <p class="text-muted small mb-3">Enter at least 4 stops in order.</p>
+
+                <div id="stops-container">
+                    {% set existing_stops = form.getlist('stop_name') %}
+                    {% set total_stops = existing_stops|length if existing_stops|length > 4 else 4 %}
+
+                    {% for i in range(total_stops) %}
+                        <div class="input-group mb-2 stop-row">
+                            <span class="input-group-text stop-number">{{ i + 1 }}</span>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="stop_name"
+                                placeholder="Stop name"
+                                value="{{ existing_stops[i] if i < existing_stops|length else '' }}"
+                                {% if i < 4 %}required{% endif %}
+                                maxlength="100"
+                            >
+                            {% if i >= 4 %}
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger remove-stop"
+                                    aria-label="Remove stop"
+                                >
+                                    Remove
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" id="add-stop" class="btn btn-outline-secondary btn-sm mt-1">
+                    + Add stop
+                </button>
+            </fieldset>
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">Promotional photos</legend>
+                <p class="text-muted small mb-1">Upload exactly 5 photos.</p>
+                <p class="text-muted small mb-3">Allowed format: PNG.</p>
+
+                <div class="mb-3">
+                    <label for="photos" class="form-label">Select 5 photos</label>
+                    <input
+                        type="file"
+                        class="form-control"
+                        id="photos"
+                        name="photos"
+                        multiple
+                        accept=".png"
+                        required
+                    >
+                    <div class="form-text">Choose exactly 5 image files.</div>
+                    <div id="photo-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
+                </div>
+            </fieldset>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Create tour</button>
+                <a href="{{ url_for('guide_profile') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
