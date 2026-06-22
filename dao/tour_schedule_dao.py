@@ -30,3 +30,19 @@ def add_schedules_bulk(tour_id, schedules):
     conn.commit()
     cur.close()
     conn.close()
+
+def replace_schedules(tour_id, schedules):
+    """
+    Replaces the whole weekly schedule of a tour (only allowed before any reservation).
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tour_schedules WHERE tour_id = ?", (tour_id,))
+    for s in schedules:
+        cur.execute("""
+            INSERT INTO tour_schedules (tour_id, weekday, start_time)
+            VALUES (?, ?, ?)
+        """, (tour_id, s["weekday"], s["start_time"]))
+    conn.commit()
+    cur.close()
+    conn.close()

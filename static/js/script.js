@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
     const participantRadio = document.getElementById("role_participant");
     const guideRadio = document.getElementById("role_guide");
     const guideBlock = document.getElementById("guide_languages_block");
@@ -25,8 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateStopNumbers() {
         if (!stopsContainer) return;
-        const rows = stopsContainer.querySelectorAll(".stop-row");
-        rows.forEach((row, index) => {
+        stopsContainer.querySelectorAll(".stop-row").forEach((row, index) => {
             const label = row.querySelector(".stop-number");
             if (label) label.textContent = index + 1;
         });
@@ -39,7 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="input-group-text stop-number">${index}</span>
             <input type="text" class="form-control" name="stop_name"
                    placeholder="Stop name" maxlength="100">
-            <button type="button" class="btn btn-outline-danger remove-stop" aria-label="Remove stop">✕</button>
+            <button type="button" class="btn btn-outline-danger remove-stop"
+                    aria-label="Remove stop">✕</button>
         `;
         div.querySelector(".remove-stop").addEventListener("click", () => {
             div.remove();
@@ -58,8 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         addStopButton.addEventListener("click", () => {
             const currentCount = stopsContainer.querySelectorAll(".stop-row").length;
-            const newRow = createStopRow(currentCount + 1);
-            stopsContainer.appendChild(newRow);
+            stopsContainer.appendChild(createStopRow(currentCount + 1));
         });
     }
 
@@ -91,5 +90,66 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    const guestList = document.getElementById("guest-list");
+    const addGuestBtn = document.getElementById("add-guest-btn");
+    const limitMsg = document.getElementById("guest-limit-msg");
+
+    if (!guestList || !addGuestBtn) return;
+
+    const MAX_GUESTS = 3;
+
+    function getGuestCount() {
+        return guestList.querySelectorAll(".guest-row").length;
+    }
+
+    function updateGuestUI() {
+        const count = getGuestCount();
+        addGuestBtn.style.display = count >= MAX_GUESTS ? "none" : "inline-block";
+        if (limitMsg) limitMsg.style.display = count >= MAX_GUESTS ? "block" : "none";
+    }
+
+    addGuestBtn.addEventListener("click", function () {
+        if (getGuestCount() >= MAX_GUESTS) return;
+
+        const index = getGuestCount();
+        const row = document.createElement("div");
+        row.classList.add("guest-row", "row", "g-2", "mb-2", "align-items-center");
+        row.innerHTML = `
+            <div class="col-5">
+                <input
+                    type="text"
+                    name="guest_first_name"
+                    class="form-control form-control-sm"
+                    placeholder="First name"
+                    aria-label="Guest ${index + 1} first name"
+                >
+            </div>
+            <div class="col-5">
+                <input
+                    type="text"
+                    name="guest_last_name"
+                    class="form-control form-control-sm"
+                    placeholder="Last name"
+                    aria-label="Guest ${index + 1} last name"
+                >
+            </div>
+            <div class="col-2">
+                <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm remove-guest-btn"
+                    aria-label="Remove this participant"
+                >&times;</button>
+            </div>
+        `;
+
+        row.querySelector(".remove-guest-btn").addEventListener("click", function () {
+            row.remove();
+            updateGuestUI();
+        });
+
+        guestList.appendChild(row);
+        updateGuestUI();
+    });
 
 });

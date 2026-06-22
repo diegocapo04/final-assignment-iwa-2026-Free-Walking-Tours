@@ -1,91 +1,161 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}{{ tour.title }} - Arpino Walks{% endblock %}
+{% block title %}{{ tour.title }} — Tour Detail{% endblock %}
 
 {% block content %}
-<article>
-    <div class="row">
-        <div class="col-lg-8">
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('tours') }}">Tours</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ tour.title }}</li>
-                </ol>
-            </nav>
-
-            <h1 class="h2 mb-1">{{ tour.title }}</h1>
-            <p class="text-muted mb-4">Led by <strong>{{ tour.guide_name }}</strong></p>
-
-            {% if photos %}
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                    {% for photo in photos %}
-                        <img
-                            src="{{ url_for('static', filename=photo.image_path) }}"
-                            alt="Tour photo {{ loop.index }}"
-                            style="width:160px;height:110px;object-fit:cover;border-radius:6px;"
-                            loading="lazy"
-                        >
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <p class="mb-4">{{ tour.description }}</p>
-
-            <ul class="list-group list-group-flush mb-4">
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>Meeting point</span>
-                    <strong>{{ tour.meeting_point }}</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>Duration</span>
-                    <strong>{{ tour.duration_minutes | int }} minutes</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>Language</span>
-                    <strong>{{ tour.language }}</strong>
-                </li>
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>Max participants</span>
-                    <strong>{{ tour.max_participants }}</strong>
-                </li>
-            </ul>
-
-            {% if schedules %}
-                <h2 class="h5 mb-2">Weekly schedule</h2>
-                <ul class="list-group list-group-flush mb-4">
-                    {% for s in schedules %}
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>{{ weekday_names[s.weekday] }}</span>
-                            <strong>{{ s.start_time }}</strong>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            {% if stops %}
-                <h2 class="h5 mb-2">Tour stops</h2>
-                <ol class="mb-4">
-                    {% for stop in stops %}
-                        <li>{{ stop.stop_name }}</li>
-                    {% endfor %}
-                </ol>
-            {% endif %}
-
-            {% if current_user.is_authenticated and current_user.role == 'participant' %}
-                <a href="#" class="btn btn-primary">Book this tour</a>
-            {% elif not current_user.is_authenticated %}
-                <p class="text-muted">
-                    <a href="{{ url_for('login') }}">Log in</a> to book this tour.
-                </p>
-            {% endif %}
-
-            {% if current_user.is_authenticated and current_user.role == 'guide' and current_user.id == tour.guide_id %}
-                <form method="POST" action="{{ url_for('delete_tour', tour_id=tour.id) }}" class="mt-3"
-                      onsubmit="return confirm('Are you sure you want to delete this tour?')">
-                    <button type="submit" class="btn btn-danger btn-sm">Delete tour</button>
-                </form>
-            {% endif %}
-        </div>
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="mb-1">{{ tour.title }}</h1>
+      <p class="text-muted mb-0">
+        <i class="bi bi-geo-alt"></i> Meeting point: <strong>{{ tour.meeting_point }}</strong>
+        &nbsp;·&nbsp;
+        <i class="bi bi-clock"></i> Duration: <strong>{{ tour.duration_minutes }} min</strong>
+        &nbsp;·&nbsp;
+        <i class="bi bi-translate"></i> Language: <strong>{{ tour.language }}</strong>
+        &nbsp;·&nbsp;
+        <i class="bi bi-people"></i> Max participants: <strong>{{ tour.max_participants }}</strong>
+      </p>
     </div>
-</article>
+  </div>
+
+  {% if photos %}
+  <div class="row g-2 mb-4">
+    {% for photo in photos %}
+    <div class="col-6 col-md-4 col-lg-2">
+      <img
+        src="{{ url_for('static', filename=photo.image_path) }}"
+        alt="Photo of {{ tour.title }}"
+        class="img-fluid rounded"
+        style="height: 140px; object-fit: cover; width: 100%;"
+      >
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-7">
+
+      <section class="mb-4">
+        <h2 class="h5 mb-2">Description</h2>
+        <p>{{ tour.description }}</p>
+      </section>
+
+      <section class="mb-4">
+        <h2 class="h5 mb-2">Weekly Schedule</h2>
+        {% if schedules %}
+        <ul class="list-group list-group-flush">
+          {% for schedule in schedules %}
+          <li class="list-group-item px-0">
+            <strong>{{schedule.weekday }}</strong> at {{ schedule.start_time }}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No schedule available.</p>
+        {% endif %}
+      </section>
+
+      <section class="mb-4">
+        <h2 class="h5 mb-2">Tour Stops</h2>
+        {% if stops %}
+        <ol class="list-group list-group-numbered">
+          {% for stop in stops %}
+          <li class="list-group-item">
+            <strong>{{ stop.stop_name }}</strong>
+          </li>
+          {% endfor %}
+        </ol>
+        {% else %}
+        <p class="text-muted">No stops listed for this tour.</p>
+        {% endif %}
+      </section>
+
+    </div>
+
+    <div class="col-12 col-lg-5">
+
+      {% if current_user.is_authenticated and current_user.role == "participant" %}
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 card-title mb-3">Reserve a place</h2>
+
+          {% if available_dates %}
+
+          <form method="POST" action="{{ url_for('reserve_tour', tour_id=tour.id) }}" novalidate>
+            <div class="mb-3">
+              <label for="tour_date" class="form-label">Select a date</label>
+              <select id="tour_date" name="tour_date" class="form-select" required>
+                <option value="" disabled selected>Choose a date...</option>
+                {% for slot in available_dates %}
+                <option value="{{ slot.date }}">
+                  {{ slot.date }} — {{ slot.weekday }} at {{ slot.start_time }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Additional participants (optional, max 3)</label>
+              <p class="text-muted small mb-2">
+                Your reservation already includes you. You can add up to 3 more people.
+              </p>
+              <div id="guest-list">
+
+              </div>
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-sm mt-2"
+                id="add-guest-btn"
+              >
+                + Add person
+              </button>
+              <p class="text-muted small mt-1" id="guest-limit-msg" style="display: none;">
+                Maximum of 3 additional participants reached.
+              </p>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Confirm reservation</button>
+            </div>
+
+          </form>
+
+          {% else %}
+          <p class="text-muted">No available dates for this tour in the next 30 days.</p>
+          {% endif %}
+
+        </div>
+      </div>
+
+      {% elif current_user.is_authenticated and current_user.role == "guide" and current_user.id == tour.guide_id %}
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 card-title mb-3">Manage this tour</h2>
+          <div class="d-grid gap-2">
+            <a href="{{ url_for('edit_tour', tour_id=tour.id) }}" class="btn btn-outline-primary">Edit tour</a>
+            <a href="{{ url_for('tour_report', tour_id=tour.id) }}" class="btn btn-outline-success">Post-tour reports</a>
+          </div>
+        </div>
+      </div>
+
+      {% elif current_user.is_authenticated and current_user.role == "guide" %}
+
+      {% else %}
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <p class="mb-3">Log in to reserve a place on this tour.</p>
+          <a href="{{ url_for('login') }}" class="btn btn-primary">Log in</a>
+          <a href="{{ url_for('register') }}" class="btn btn-outline-secondary ms-2">Register</a>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+</div>
 {% endblock %}

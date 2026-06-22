@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Edit tour - Arpino Walks{% endblock %}
+
+{% block content %}
+<section class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <h1 class="h2 mb-3">Edit tour</h1>
+
+        {% if locked %}
+            <div class="alert alert-info" role="alert">
+                This tour already has reservations. Essential fields (schedule, meeting point,
+                duration, language, max participants) can no longer be changed. You can still edit
+                the title, description, and stops.
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('edit_tour', tour_id=tour.id) }}">
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">General information</legend>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="title" name="title"
+                           value="{{ form.get('title') if form else tour.title }}"
+                           required minlength="5" maxlength="100">
+                </div>
+
+                <div class="mb-3">
+                    <label for="meeting_point" class="form-label">Meeting point</label>
+                    <input type="text" class="form-control" id="meeting_point" name="meeting_point"
+                           value="{{ form.get('meeting_point') if form else tour.meeting_point }}"
+                           {% if locked %}disabled{% else %}required minlength="3" maxlength="200"{% endif %}>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="duration_minutes" class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="duration_minutes" name="duration_minutes"
+                               value="{{ form.get('duration_minutes') if form else tour.duration_minutes }}"
+                               min="1" max="1440"
+                               {% if locked %}disabled{% else %}required{% endif %}>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="max_participants" class="form-label">Max participants</label>
+                        <input type="number" class="form-control" id="max_participants" name="max_participants"
+                               value="{{ form.get('max_participants') if form else tour.max_participants }}"
+                               min="1" max="50"
+                               {% if locked %}disabled{% else %}required{% endif %}>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="language" class="form-label">Language</label>
+                        <select class="form-select" id="language" name="language"
+                                {% if locked %}disabled{% else %}required{% endif %}>
+                            {% set current_lang = form.get('language') if form else tour.language %}
+                            {% for lang in allowed_languages %}
+                                <option value="{{ lang }}" {% if current_lang == lang %}selected{% endif %}>{{ lang }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="4"
+                              required minlength="10" maxlength="1000">{{ form.get('description') if form else tour.description }}</textarea>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">Weekly schedule</legend>
+                {% if locked %}
+                    <p class="text-muted small">Schedule is locked and cannot be modified.</p>
+                {% endif %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr><th>Day</th><th>Active</th><th>Start time</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for day in weekday_names %}
+                                {% set i = loop.index0 %}
+                                {% set ns = namespace(checked=false, time='') %}
+                                {% if form %}
+                                    {% if (i | string) in form.getlist('weekday') %}{% set ns.checked = true %}{% endif %}
+                                    {% set ns.time = form.get('start_time_' ~ i, '') %}
+                                {% else %}
+                                    {% for s in schedules %}
+                                        {% if s.weekday == i %}{% set ns.checked = true %}{% set ns.time = s.start_time %}{% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                <tr>
+                                    <td>{{ day }}</td>
+                                    <td>
+                                        <input class="form-check-input" type="checkbox" name="weekday" value="{{ i }}"
+                                               id="weekday_{{ i }}" {% if ns.checked %}checked{% endif %}
+                                               {% if locked %}disabled{% endif %}>
+                                    </td>
+                                    <td>
+                                        <input type="time" class="form-control form-control-sm"
+                                               id="start_time_{{ i }}" name="start_time_{{ i }}"
+                                               value="{{ ns.time }}" {% if locked %}disabled{% endif %}>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">Tour stops</legend>
+                <p class="text-muted small mb-3">At least 4 stops, in order.</p>
+                {% set existing_stops = form.getlist('stop_name') if form else (stops | map(attribute='stop_name') | list) %}
+                {% set total_stops = existing_stops | length if existing_stops | length > 4 else 4 %}
+                {% for i in range(total_stops) %}
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">{{ i + 1 }}</span>
+                        <input type="text" class="form-control" name="stop_name" placeholder="Stop name"
+                               value="{{ existing_stops[i] if i < existing_stops | length else '' }}"
+                               {% if i < 4 %}required{% endif %} maxlength="100">
+                    </div>
+                {% endfor %}
+            </fieldset>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a href="{{ url_for('guide_profile') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

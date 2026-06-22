@@ -12,40 +12,68 @@
         <a href="{{ url_for('new_tour') }}" class="btn btn-primary btn-sm">+ New tour</a>
     </div>
 
-    {% if tours %}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th scope="col">Title</th>
-                        <th scope="col">Meeting point</th>
-                        <th scope="col">Language</th>
-                        <th scope="col">Duration</th>
-                        <th scope="col">Max participants</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for tour in tours %}
-                        <tr>
-                            <td>
+    {% if tours_overview %}
+        {% for item in tours_overview %}
+            {% set tour = item.tour %}
+            <article class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <h3 class="h5 mb-1">
                                 <a href="{{ url_for('tour_detail', tour_id=tour.id) }}">{{ tour.title }}</a>
-                            </td>
-                            <td>{{ tour.meeting_point }}</td>
-                            <td>{{ tour.language }}</td>
-                            <td>{{ tour.duration_minutes | int }} min</td>
-                            <td>{{ tour.max_participants }}</td>
-                            <td>
-                                <form method="POST" action="{{ url_for('delete_tour', tour_id=tour.id) }}"
-                                      onsubmit="return confirm('Delete this tour?')">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                            </h3>
+                            <p class="text-muted small mb-0">
+                                {{ tour.language }} · {{ tour.duration_minutes }} min · max {{ tour.max_participants }} ·
+                                {{ tour.meeting_point }}
+                            </p>
+                            {% if item.locked %}
+                                <span class="badge bg-secondary mt-2">Locked (has reservations)</span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('edit_tour', tour_id=tour.id) }}" class="btn btn-outline-primary btn-sm">Edit</a>
+                            <a href="{{ url_for('tour_report', tour_id=tour.id) }}" class="btn btn-outline-success btn-sm">Reports</a>
+                            <form method="POST" action="{{ url_for('delete_tour', tour_id=tour.id) }}"
+                                  onsubmit="return confirm('Delete this tour?')">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" {% if item.locked %}disabled{% endif %}>Delete</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h4 class="h6 mt-3">Reservations per date</h4>
+                    {% if item.dates %}
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Start</th>
+                                        <th scope="col">Total people</th>
+                                        <th scope="col">Reservations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for d in item.dates %}
+                                        <tr>
+                                            <td>{{ d.tour_date }}</td>
+                                            <td>{{ d.start_time }}</td>
+                                            <td>{{ d.total_people }}</td>
+                                            <td>
+                                                {% for r in d.reservations %}
+                                                    {{ r.participant_name }} ({{ r.people }}){% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted small mb-0">No reservations yet for this tour.</p>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
     {% else %}
         <div class="text-center py-4">
             <p class="text-muted mb-3">You have not created any tours yet.</p>

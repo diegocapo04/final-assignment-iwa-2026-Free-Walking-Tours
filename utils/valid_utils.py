@@ -1,6 +1,6 @@
 ALLOWED_LANGUAGES = ["Italian", "English", "Spanish", "Portuguese", "German"]
 ALLOWED_ROLES = ["participant", "guide"]
-ALLOWED_PHOTO_EXTENSIONS = ["png"]
+ALLOWED_PHOTO_EXTENSIONS = ["png", "jpg", "jpeg"]
 WEEKDAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def validate_basic_registration(first_name, last_name, email, password, confirm_password):
@@ -40,16 +40,27 @@ def validate_guide_languages(languages):
 
     return None
 
-def validate_tour(title, meeting_point, duration_minutes, language, max_participants, description, guide_languages):
-    if not title or not description or not meeting_point or not duration_minutes or not language or not max_participants:
-        return "All fields are required."
+def validate_tour_text(title, description):
+    """Validation for the fields that stay editable even after the tour is locked."""
+    if not title or not description:
+        return "Title and description are required."
 
     if len(title) < 5 or len(title) > 100:
         return "Title must contain between 5 and 100 characters."
 
     if len(description) < 10 or len(description) > 1000:
         return "Description must contain between 10 and 1000 characters."
-    
+
+    return None
+
+def validate_tour(title, meeting_point, duration_minutes, language, max_participants, description, guide_languages):
+    if not title or not description or not meeting_point or not duration_minutes or not language or not max_participants:
+        return "All fields are required."
+
+    text_error = validate_tour_text(title, description)
+    if text_error:
+        return text_error
+
     if language not in guide_languages:
         return "Selected language is not among the guide's languages."
 
@@ -99,12 +110,38 @@ def validate_tour_stops(stop_names):
         
     return None
 
+def has_allowed_extension(filename):
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
+    return ext in ALLOWED_PHOTO_EXTENSIONS
+
 def validate_tour_photos(photos):
     valid_photos = [p for p in photos if p.filename != ""]
     if len(valid_photos) != 5:
         return "Please upload exactly 5 promotional photos."
     for photo in valid_photos:
-        ext = photo.filename.rsplit(".", 1)[-1].lower() if "." in photo.filename else ""
-        if ext not in ALLOWED_PHOTO_EXTENSIONS:
-            return "Photos must be PNG files."
+        if not has_allowed_extension(photo.filename):
+            return "Photos must be PNG, JPG or JPEG files."
+    return None
+
+def validate_report_photo(photo):
+    if photo is None or photo.filename == "":
+        return "Please upload one photo as evidence of the tour."
+    if not has_allowed_extension(photo.filename):
+        return "The evidence photo must be a PNG, JPG or JPEG file."
+    return None
+
+def validate_actual_attendees(actual_attendees, reserved_total):
+    """The declared number of attendees must be a non-negative integer
+    not greater than the people who had reserved for that date."""
+    try:
+        value = int(actual_attendees)
+    except (ValueError, TypeError):
+        return "The number of attendees must be a valid integer."
+
+    if value < 0:
+        return "The number of attendees cannot be negative."
+
+    if value > reserved_total:
+        return f"The number of attendees cannot exceed the {reserved_total} reserved people."
+
     return None

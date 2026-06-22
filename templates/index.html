@@ -1,13 +1,69 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Arpino Walks{% endblock %}
+{% block title %}Tours - Arpino Walks{% endblock %}
 
 {% block content %}
-<section class="py-5">
-    <h1 class="display-5 mb-3">Discover Arpino through free walking tours</h1>
-    <p class="lead">
-        Explore the history, art, legends, and hidden corners of Arpino with guided walking experiences.
-    </p>
-    <a href="#" class="btn btn-primary mt-3">Browse tours</a>
+<section class="mb-4">
+    <h1 class="h2 mb-2">Free walking tours in Arpino</h1>
+    <p class="text-muted">Browse the available tours and filter them by date, duration, or language.</p>
+</section>
+
+<section class="mb-4">
+    <form method="GET" action="{{ url_for('index') }}" class="row g-3 align-items-end">
+        <div class="col-12 col-md-3">
+            <label for="date" class="form-label">Date</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ filters.date }}">
+        </div>
+        <div class="col-6 col-md-2">
+            <label for="duration_min" class="form-label">Min duration (min)</label>
+            <input type="number" min="1" class="form-control" id="duration_min" name="duration_min" value="{{ filters.duration_min }}">
+        </div>
+        <div class="col-6 col-md-2">
+            <label for="duration_max" class="form-label">Max duration (min)</label>
+            <input type="number" min="1" class="form-control" id="duration_max" name="duration_max" value="{{ filters.duration_max }}">
+        </div>
+        <div class="col-12 col-md-3">
+            <label for="language" class="form-label">Language</label>
+            <select class="form-select" id="language" name="language">
+                <option value="">All languages</option>
+                {% for lang in allowed_languages %}
+                    <option value="{{ lang }}" {% if filters.language == lang %}selected{% endif %}>{{ lang }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-2 d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+</section>
+
+<section>
+    {% if tours %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for tour in tours %}
+                <div class="col">
+                    <article class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h2 class="card-title h5">{{ tour.title }}</h2>
+                            <p class="card-text text-muted small">{{ tour.description | truncate(120) }}</p>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Guide:</strong> {{ tour.guide_name }}</li>
+                            <li class="list-group-item"><strong>Duration:</strong> {{ tour.duration_minutes }} minutes</li>
+                            <li class="list-group-item"><strong>Language:</strong> {{ tour.language }}</li>
+                        </ul>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="{{ url_for('tour_detail', tour_id=tour.id) }}" class="btn btn-primary btn-sm">View details</a>
+                        </div>
+                    </article>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted mb-0">No tours match your filters.</p>
+        </div>
+    {% endif %}
 </section>
 {% endblock %}
