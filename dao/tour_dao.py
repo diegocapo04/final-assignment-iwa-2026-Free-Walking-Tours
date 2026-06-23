@@ -75,8 +75,9 @@ def get_tour_by_id(tour_id):
             t.description,
             t.created_at,
             u.first_name || ' ' || u.last_name AS guide_name
-        FROM tours t, users u
-        WHERE t.guide_id = u.id AND t.id = ?
+        FROM tours t
+        JOIN users u ON t.guide_id = u.id
+        WHERE t.id = ?
     """, (tour_id,))
     tour = cur.fetchone()
     cur.close()

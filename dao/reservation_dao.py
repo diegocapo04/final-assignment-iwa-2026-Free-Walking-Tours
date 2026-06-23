@@ -93,11 +93,11 @@ def get_active_reservations_by_participant(participant_id):
             t.duration_minutes,
             t.language,
             ts.start_time
-        FROM reservations r, tours t, tour_schedules ts
-        WHERE r.tour_id = t.id
-          AND ts.tour_id = t.id
+        FROM reservations r
+        JOIN tours t ON r.tour_id = t.id
+        JOIN tour_schedules ts ON ts.tour_id = t.id
           AND ts.weekday = ((CAST(strftime('%w', r.tour_date) AS INTEGER) + 6) % 7)
-          AND r.participant_id = ?
+        WHERE r.participant_id = ?
           AND r.status = 'active'
         ORDER BY r.tour_date, ts.start_time
     """, (participant_id,))
@@ -124,11 +124,11 @@ def get_all_reservations_by_participant(participant_id):
             t.duration_minutes,
             t.language,
             ts.start_time
-        FROM reservations r, tours t, tour_schedules ts
-        WHERE r.tour_id = t.id
-          AND ts.tour_id = t.id
+        FROM reservations r
+        JOIN tours t ON r.tour_id = t.id
+        JOIN tour_schedules ts ON ts.tour_id = t.id
           AND ts.weekday = ((CAST(strftime('%w', r.tour_date) AS INTEGER) + 6) % 7)
-          AND r.participant_id = ?
+        WHERE r.participant_id = ?
         ORDER BY r.tour_date DESC, ts.start_time DESC
     """, (participant_id,))
     reservations = cur.fetchall()
@@ -183,12 +183,12 @@ def get_active_reservations_with_participant(tour_id):
             ts.start_time,
             u.first_name,
             u.last_name
-        FROM reservations r, users u, tours t, tour_schedules ts
-        WHERE r.tour_id = t.id
-          AND ts.tour_id = t.id
+        FROM reservations r
+        JOIN users u ON r.participant_id = u.id
+        JOIN tours t ON r.tour_id = t.id
+        JOIN tour_schedules ts ON ts.tour_id = t.id
           AND ts.weekday = ((CAST(strftime('%w', r.tour_date) AS INTEGER) + 6) % 7)
-          AND r.participant_id = u.id
-          AND r.tour_id = ?
+        WHERE r.tour_id = ?
           AND r.status = 'active'
         ORDER BY r.tour_date, ts.start_time, u.last_name
     """, (tour_id,))
@@ -215,11 +215,11 @@ def get_reservation_detail_for_participant(reservation_id, participant_id):
             t.duration_minutes,
             t.language,
             ts.start_time
-        FROM reservations r, tours t, tour_schedules ts
-        WHERE r.tour_id = t.id
-          AND ts.tour_id = t.id
+        FROM reservations r
+        JOIN tours t ON r.tour_id = t.id
+        JOIN tour_schedules ts ON ts.tour_id = t.id
           AND ts.weekday = ((CAST(strftime('%w', r.tour_date) AS INTEGER) + 6) % 7)
-          AND r.id = ?
+        WHERE r.id = ?
           AND r.participant_id = ?
     """, (reservation_id, participant_id))
     reservation = cur.fetchone()
