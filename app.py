@@ -225,7 +225,15 @@ def tour_detail(tour_id):
     if current_user.is_authenticated:
         available_dates = reservation_utils.get_available_dates_for_tour(schedules)
 
-    return render_template("tour_detail.html", tour=tour, schedules=schedules, stops=stops, photos=photos, available_dates=available_dates)
+    return render_template(
+        "tour_detail.html", 
+        tour=tour, 
+        schedules=schedules, 
+        stops=stops, 
+        photos=photos, 
+        available_dates=available_dates, 
+        weekday_names=valid_utils.WEEKDAY_NAMES
+        )
 
 @app.route("/tours/<int:tour_id>/reserve", methods=["POST"])
 @login_required
@@ -509,7 +517,7 @@ def tour_report(tour_id):
             return redirect(url_for("tour_report", tour_id=tour_id))
 
         try:
-            photo_path = photo_utils.save_report_photo(photo, tour_id, tour_date, REPORT_PHOTO_WIDTH, REPORT_PHOTO_HEIGHT)
+            photo_path = photo_utils.save_report_photo(photo, current_user.id, tour_id, tour_date, REPORT_PHOTO_WIDTH, REPORT_PHOTO_HEIGHT)
         except UnidentifiedImageError:
             flash("The uploaded file could not be read as an image.", "danger")
             return redirect(url_for("tour_report", tour_id=tour_id))

@@ -5,8 +5,10 @@
 {% block content %}
 <section class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
-        <h1 class="h2 mb-4">Create a new tour</h1>
+        <h1 class="h2 mb-1">Create a new tour</h1>
+        <p class="text-muted mb-4">Fill in the details below to publish a new free walking tour.</p>
 
+        <div class="panel">
         <form method="POST" action="{{ url_for('new_tour') }}" enctype="multipart/form-data">
 
             <fieldset class="mb-4">
@@ -21,7 +23,7 @@
                         name="title"
                         value="{{ form.get('title', '') }}"
                         required
-                        minlength="3"
+                        minlength="5"
                         maxlength="100"
                     >
                 </div>
@@ -185,7 +187,7 @@
             <fieldset class="mb-4">
                 <legend class="h5 mb-3">Promotional photos</legend>
                 <p class="text-muted small mb-1">Upload exactly 5 photos.</p>
-                <p class="text-muted small mb-3">Allowed format: PNG.</p>
+                <p class="text-muted small mb-3">Allowed formats: PNG, JPG, JPEG.</p>
 
                 <div class="mb-3">
                     <label for="photos" class="form-label">Select 5 photos</label>
@@ -195,7 +197,7 @@
                         id="photos"
                         name="photos"
                         multiple
-                        accept=".png"
+                        accept=".png,.jpg,.jpeg"
                         required
                     >
                     <div class="form-text">Choose exactly 5 image files.</div>
@@ -208,6 +210,7 @@
                 <a href="{{ url_for('guide_profile') }}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
+        </div>
     </div>
 </section>
 {% endblock %}

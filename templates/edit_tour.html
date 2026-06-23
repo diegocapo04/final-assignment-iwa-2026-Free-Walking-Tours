@@ -15,6 +15,7 @@
             </div>
         {% endif %}
 
+        <div class="panel">
         <form method="POST" action="{{ url_for('edit_tour', tour_id=tour.id) }}">
 
             <fieldset class="mb-4">
@@ -129,6 +130,7 @@
                 <a href="{{ url_for('guide_profile') }}" class="btn btn-outline-secondary">Cancel</a>
             </div>
         </form>
+        </div>
     </div>
 </section>
 {% endblock %}

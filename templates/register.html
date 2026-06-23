@@ -4,127 +4,80 @@
 
 {% block content %}
 <section class="row justify-content-center">
-    <div class="col-md-8 col-lg-7">
-        <h1 class="h2 mb-4">Create an account</h1>
+    <div class="col-md-9 col-lg-7">
+        <div class="panel">
+            <h1 class="h3 mb-1">Create your account</h1>
+            <p class="text-muted mb-4">Join as a participant to book tours, or as a guide to offer them.</p>
 
-        <form method="POST" action="{{ url_for('register') }}">
-            <fieldset class="mb-4">
-                <legend class="form-label">Registration type</legend>
-
-                <div class="form-check form-check-inline">
-                    <input
-                        class="form-check-input"
-                        type="radio"
-                        name="role"
-                        id="role_participant"
-                        value="participant"
-                        {% if selected_role == 'participant' %}checked{% endif %}
-                    >
-                    <label class="form-check-label" for="role_participant">
-                        Participant
-                    </label>
-                </div>
-
-                <div class="form-check form-check-inline">
-                    <input
-                        class="form-check-input"
-                        type="radio"
-                        name="role"
-                        id="role_guide"
-                        value="guide"
-                        {% if selected_role == 'guide' %}checked{% endif %}
-                    >
-                    <label class="form-check-label" for="role_guide">
-                        Guide
-                    </label>
-                </div>
-            </fieldset>
-
-            <div class="mb-3">
-                <label for="first_name" class="form-label">First name</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="first_name"
-                    name="first_name"
-                    required
-                    minlength="2"
-                    maxlength="50"
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="last_name" class="form-label">Last name</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="last_name"
-                    name="last_name"
-                    required
-                    minlength="2"
-                    maxlength="50"
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
-                <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    name="email"
-                    required
-                    maxlength="255"
-                >
-            </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    name="password"
-                    required
-                    minlength="8"
-                    maxlength="128"
-                >
-            </div>
-
-            <div class="mb-4">
-                <label for="confirm_password" class="form-label">Confirm password</label>
-                <input
-                    type="password"
-                    class="form-control"
-                    id="confirm_password"
-                    name="confirm_password"
-                    required
-                    minlength="8"
-                    maxlength="128"
-                >
-            </div>
-
-            <fieldset class="mb-4" id="guide_languages_block">
-                <legend class="form-label">Spoken languages</legend>
-
-                {% for language in allowed_languages %}
-                    <div class="form-check">
-                        <input
-                            class="form-check-input guide-language-checkbox"
-                            type="checkbox"
-                            name="languages"
-                            value="{{ language }}"
-                            id="language_{{ loop.index }}"
-                        >
-                        <label class="form-check-label" for="language_{{ loop.index }}">
-                            {{ language }}
-                        </label>
+            <form method="POST" action="{{ url_for('register') }}">
+                <fieldset class="mb-4">
+                    <legend class="mb-2">I want to register as</legend>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="role" id="role_participant" value="participant"
+                                   {% if selected_role != 'guide' %}checked{% endif %}>
+                            <label class="form-check-label" for="role_participant"><i class="bi bi-person"></i> Participant</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="role" id="role_guide" value="guide"
+                                   {% if selected_role == 'guide' %}checked{% endif %}>
+                            <label class="form-check-label" for="role_guide"><i class="bi bi-person-badge"></i> Guide</label>
+                        </div>
                     </div>
-                {% endfor %}
-            </fieldset>
+                </fieldset>
 
-            <button type="submit" class="btn btn-primary">Create account</button>
-        </form>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="first_name" class="form-label">First name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" required minlength="2" maxlength="50">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="last_name" class="form-label">Last name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" required minlength="2" maxlength="50">
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" required maxlength="255">
+                </div>
+
+                <div class="row g-3 mb-2">
+                    <div class="col-md-6">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required minlength="8" maxlength="128">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirm_password" class="form-label">Confirm password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="8" maxlength="128">
+                    </div>
+                </div>
+
+                <fieldset class="mb-4" id="guide_languages_block">
+                    <legend class="mb-2">Spoken languages</legend>
+                    <p class="text-muted small mb-2">As a guide, select every language you can run tours in.</p>
+                    <div class="row">
+                        {% for language in allowed_languages %}
+                        <div class="col-6 col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input guide-language-checkbox" type="checkbox" name="languages"
+                                       value="{{ language }}" id="language_{{ loop.index }}">
+                                <label class="form-check-label" for="language_{{ loop.index }}">{{ language }}</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Create account</button>
+                </div>
+            </form>
+
+            <p class="text-center text-muted small mt-4 mb-0">
+                Already registered? <a href="{{ url_for('login') }}">Log in</a>
+            </p>
+        </div>
     </div>
 </section>
 {% endblock %}

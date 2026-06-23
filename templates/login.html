@@ -3,38 +3,30 @@
 {% block title %}Login - Arpino Walks{% endblock %}
 
 {% block content %}
-<section class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <h1 class="h2 mb-4">Login</h1>
+<div class="auth-card">
+    <div class="panel">
+        <h1 class="h3 mb-1 text-center">Welcome back</h1>
+        <p class="text-muted text-center mb-4">Log in to manage your tours or reservations.</p>
 
         <form method="POST" action="{{ url_for('login') }}">
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    name="email"
-                    required
-                    maxlength="255"
-                >
+                <input type="email" class="form-control" id="email" name="email" required maxlength="255" autocomplete="email">
             </div>
 
             <div class="mb-4">
                 <label for="password" class="form-label">Password</label>
-                <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    name="password"
-                    required
-                    minlength="8"
-                    maxlength="128"
-                >
+                <input type="password" class="form-control" id="password" name="password" required minlength="8" maxlength="128" autocomplete="current-password">
             </div>
 
-            <button type="submit" class="btn btn-primary">Login</button>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Log in</button>
+            </div>
         </form>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+            Don't have an account? <a href="{{ url_for('register') }}">Sign up</a>
+        </p>
     </div>
-</section>
+</div>
 {% endblock %}
