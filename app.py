@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from PIL import UnidentifiedImageError
 from models import user_from_row
-from dao import user_dao, tour_dao, tour_schedule_dao, tour_stop_dao, tour_photo_dao, reservation_dao, reservation_guest_dao, tour_report_dao
+from dao import user_dao, tour_dao, tour_schedule_dao, tour_stop_dao, tour_photo_dao, reservation_dao, reservation_guest_dao, tour_report_dao, admin_dao
 from utils import auth_utils, valid_utils, photo_utils, reservation_utils
 
 UPLOAD_FOLDER = "static/uploads/tour_photos"
@@ -207,7 +207,27 @@ def admin_dashboard():
     redirect_response = auth_utils.require_role("admin")
     if redirect_response:
         return redirect_response
-    return render_template("admin_dashboard.html")
+
+    stats = {
+        "guides": admin_dao.get_user_count_by_role("guide"),
+        "participants": admin_dao.get_user_count_by_role("participant"),
+        "tours": admin_dao.get_tour_count(),
+        "reservations": admin_dao.get_reservation_count(),
+    }
+    reservations_by_language = admin_dao.get_reservations_count_by_language()
+
+    guides_overview = []
+    for guide in admin_dao.get_all_guides():
+        languages = [row["language"] for row in user_dao.get_guide_languages(guide["id"])]
+        tours = tour_dao.get_tours_by_guide(guide["id"])
+        guides_overview.append({"guide": guide, "languages": languages, "tours": tours})
+
+    return render_template(
+        "admin_dashboard.html",
+        stats=stats,
+        reservations_by_language=reservations_by_language,
+        guides_overview=guides_overview,
+    )
 
 @app.route("/tours/<int:tour_id>")
 def tour_detail(tour_id):
