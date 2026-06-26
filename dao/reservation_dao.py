@@ -15,51 +15,6 @@ def create_reservation(participant_id, tour_id, tour_date, total_people):
     conn.close()
     return reservation_id
 
-def get_reservation_by_id(reservation_id):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT
-            r.id,
-            r.participant_id,
-            r.tour_id,
-            r.tour_date,
-            r.total_people,
-            r.status,
-            r.created_at,
-            r.cancelled_at
-        FROM reservations r
-        WHERE r.id = ?
-    """, (reservation_id,))
-    reservation = cur.fetchone()
-    cur.close()
-    conn.close()
-    return reservation
-
-def get_active_reservations_for_tour_date(tour_id, tour_date):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT
-            id,
-            participant_id,
-            tour_id,
-            tour_date,
-            total_people,
-            status,
-            created_at,
-            cancelled_at
-        FROM reservations
-        WHERE tour_id = ?
-          AND tour_date = ?
-          AND status = 'active'
-        ORDER BY created_at
-    """, (tour_id, tour_date))
-    reservations = cur.fetchall()
-    cur.close()
-    conn.close()
-    return reservations
-
 def get_reserved_places_for_tour_date(tour_id, tour_date):
     conn = get_connection()
     cur = conn.cursor()
@@ -100,36 +55,6 @@ def get_active_reservations_by_participant(participant_id):
         WHERE r.participant_id = ?
           AND r.status = 'active'
         ORDER BY r.tour_date, ts.start_time
-    """, (participant_id,))
-    reservations = cur.fetchall()
-    cur.close()
-    conn.close()
-    return reservations
-
-def get_all_reservations_by_participant(participant_id):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT
-            r.id,
-            r.participant_id,
-            r.tour_id,
-            r.tour_date,
-            r.total_people,
-            r.status,
-            r.created_at,
-            r.cancelled_at,
-            t.title,
-            t.meeting_point,
-            t.duration_minutes,
-            t.language,
-            ts.start_time
-        FROM reservations r
-        JOIN tours t ON r.tour_id = t.id
-        JOIN tour_schedules ts ON ts.tour_id = t.id
-          AND ts.weekday = ((CAST(strftime('%w', r.tour_date) AS INTEGER) + 6) % 7)
-        WHERE r.participant_id = ?
-        ORDER BY r.tour_date DESC, ts.start_time DESC
     """, (participant_id,))
     reservations = cur.fetchall()
     cur.close()
